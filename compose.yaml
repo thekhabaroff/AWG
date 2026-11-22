@@ -1,0 +1,38 @@
+services:
+  awg:
+    image: ${AWG_IMAGE:-ghcr.io/your-github-owner/awg:3.1.20261116}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: amneziawg
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      net.ipv4.ip_forward: "1"
+    ports:
+      - "${SERVER_PORT:-51820}:51820/udp"
+    volumes:
+      - ./config:/etc/amnezia/amneziawg:ro
+    read_only: true
+    tmpfs:
+      - /run:rw,noexec,nosuid,size=16m,mode=0755
+      - /tmp:rw,noexec,nosuid,size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "/usr/bin/awg", "show", "wg0"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    stop_grace_period: 20s
+    restart: unless-stopped
