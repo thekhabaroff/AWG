@@ -1,0 +1,9 @@
+.env
+.init-server.lock
+/config/
+*.conf
+*.pem
+*.key
+id_*
+/*.tar
+/*.tar.gz
