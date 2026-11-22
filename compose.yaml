@@ -1,6 +1,6 @@
 services:
   awg:
-    image: ${AWG_IMAGE:-ghcr.io/your-github-owner/awg:3.1.20261116}
+    image: ${AWG_IMAGE:-ghcr.io/thekhabaroff/awg:3.1.20261116}
     build:
       context: .
       dockerfile: Dockerfile

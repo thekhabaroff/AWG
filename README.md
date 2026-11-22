@@ -12,14 +12,14 @@
 
 ## Опубликовать образ в GitHub Container Registry
 
-1. Создайте GitHub-репозиторий. Скопируйте **содержимое** этого каталога в корень репозитория, включая скрытые файлы и каталог `.github`. В корне должны находиться `Dockerfile`, `compose.yaml` и `.github/workflows/publish-ghcr.yml`. Не публикуйте каталог `config/`, `.env` или клиентские конфиги с приватными ключами.
+1. Файлы сборки и workflow уже находятся в корне этого репозитория. Не добавляйте `.env`, каталог `config/` и клиентские конфиги с приватными ключами.
 2. В GitHub проверьте, что Actions разрешены для репозитория и workflow имеет `packages: write` (это право уже задано в файле).
-3. Отправьте исходники, затем создайте версионный тег:
+3. Отправьте изменения в ветку `master`, затем создайте версионный тег:
 
    ```bash
    git add .
    git commit -m "Prepare AmneziaWG image"
-   git push origin main
+   git push origin master
    git tag 3.1.20261116
    git push origin 3.1.20261116
    ```
@@ -34,7 +34,7 @@ ghcr.io/OWNER/REPOSITORY:3.1.20261116
 ghcr.io/OWNER/REPOSITORY:latest
 ```
 
-GitHub Actions автоматически использует фактический owner/repository. В следующем разделе замените пример `ghcr.io/your-github-owner/awg` на это имя. Публичный package разрешает pull без входа в GHCR.
+GitHub Actions автоматически использует фактический owner/repository. Для этого репозитория адрес — `ghcr.io/thekhabaroff/awg`. Публичный package разрешает pull без входа в GHCR.
 
 ## Развернуть на Ubuntu 24.04
 
@@ -49,12 +49,12 @@ sudo docker compose version
 
 ### 2. Подготовить проект
 
-Клонируйте ваш публичный репозиторий на сервер (замените owner и repository):
+Клонируйте этот публичный репозиторий на сервер:
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y git
-sudo git clone https://github.com/OWNER/REPOSITORY.git /opt/awg
+sudo git clone https://github.com/thekhabaroff/AWG.git /opt/awg
 sudo chown -R root:root /opt/awg
 sudo chmod 0755 /opt/awg/scripts/init-server.sh /opt/awg/publish.sh
 cd /opt/awg
@@ -62,7 +62,13 @@ sudo cp .env.example .env
 sudo chmod 0600 .env
 ```
 
-Откройте `/opt/awg/.env` и замените `AWG_IMAGE` на свой путь GHCR, например `ghcr.io/my-account/awg:3.1.20261116`. Укажите точный регистр GitHub owner/repository в нижнем регистре. `SERVER_PORT` по умолчанию `51820`.
+Файл `/opt/awg/.env` уже содержит адрес публичного образа `ghcr.io/thekhabaroff/awg:3.1.20261116`. Измените `AWG_IMAGE` только если хотите использовать другой опубликованный тег. `SERVER_PORT` по умолчанию `51820`.
+
+Загрузите опубликованный образ до генерации конфигов:
+
+```bash
+sudo docker compose pull awg
+```
 
 ### 3. Сгенерировать ключи и конфиги
 
@@ -86,7 +92,6 @@ Docker-публикация портов может обходить обычн�
 ### 4. Запустить сервис
 
 ```bash
-sudo docker compose pull awg
 sudo docker compose up -d
 sudo docker compose ps
 sudo docker compose logs --tail=100 awg
