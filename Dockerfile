@@ -25,7 +25,7 @@ RUN set -eux; \
     CGO_ENABLED=0 GOOS="${TARGETOS:-linux}" GOARCH="${TARGETARCH}" \
         go build -trimpath -ldflags="-s -w" -o /out/amneziawg-go .
 
-FROM alpine:3.23 AS awg-tools-build
+FROM alpine:3.24 AS awg-tools-build
 ARG AWG_TOOLS_TAG=v3.1.20260812
 
 RUN apk add --no-cache build-base git linux-headers
@@ -39,7 +39,7 @@ RUN git clone --depth 1 --branch "${AWG_TOOLS_TAG}" \
     && cp wg-quick/linux.bash /out/usr/bin/awg-quick \
     && chmod 0755 /out/usr/bin/awg /out/usr/bin/awg-quick
 
-FROM alpine:3.23
+FROM alpine:3.24
 ARG OCI_SOURCE_URL="https://github.com/OWNER/REPOSITORY"
 
 LABEL org.opencontainers.image.title="AmneziaWG low-overhead server" \
